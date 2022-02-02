@@ -2,15 +2,16 @@
 
 # Main file for running the game
 
+import json
 import random
 import sys
 import word_lib
 
-ENDC = '\033[0m'
-RED = '\033[41m'
-GREEN = '\033[42m'
-YELLOW = '\033[43m'
-GRAY = '\033[100m'
+ENDC = "\033[0m"
+RED = "\033[41m"
+GREEN = "\033[42m"
+YELLOW = "\033[43m"
+GRAY = "\033[100m"
 
 # Display the guess with proper colors based on position of letters
 def display_output(answer, guess):
@@ -51,23 +52,31 @@ def printHelp(answer, words):
 
 def main():
     # Game configuration should be read from a wordle.conf (JSON?) file
+    with open("wordle.conf") as config:
+        params = json.load(config)["level-parameters"]
 
     # Number of letters in the answer
-    num_letters = 5
+    num_letters = params["letters"]
     if len(sys.argv) > 1:
         num_letters = int(sys.argv[1])
 
-    # Maximum number of times the user can guess the answer. This should be (num_letters-2)*2 or 4, whichever is greater
-    max_guesses = (num_letters- 2) * 2
+    # Maximum number of times the user can guess the answer. 6 seems to be a perfect number no matter the number of letters
+    max_guesses = params["guesses"]
 
     # Level of difficulty:
     # "easy" has subset of dictionary containing more common words
     # "normal" has standard dictionary and no guessing restrictions
     # "hard" has standard dictionary but user is forced to use hints
-    difficulty = "normal"
+    difficulty = params["difficulty"]
 
     # Whether there is a timer. True is "on", false is "off"
-    timer = "off"
+    timer = params["timer"]
+
+    print("Starting game with the following parameters:")
+    print("LETTERS:    %s" % num_letters)
+    print("GUESSES:    %s" % max_guesses)
+    print("DIFFICULTY: %s" % difficulty)
+    print("TIMER:      %s" % timer)
 
     words = word_lib.get_words(num_letters)
     answer = words[random.randrange(len(words))]
@@ -75,12 +84,6 @@ def main():
     guess = ""
     blocks = ""
     correct = False
-
-    print("Starting game with the following parameters:")
-    print("LETTERS:    %s" % num_letters)
-    print("GUESSES:    %s" % max_guesses)
-    print("DIFFICULTY: %s" % difficulty)
-    print("TIMER:      %s" % timer)
 
     # Main loop
     while(num_guesses < max_guesses and correct == False):
@@ -93,8 +96,9 @@ def main():
     if correct == True:
         print("\nWordle %s/%s" % (num_guesses, max_guesses))
     else:
-        print("Close! Answer was %s" % answer)
+        print("\nClose! Answer was %s" % answer)
 
     print(blocks)
 
-main()
+if __name__ == '__main__':
+    main()

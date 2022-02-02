@@ -4,10 +4,14 @@
 #
 # Library containing methods for retrieving list of words for a given round
 
+import json
 import os
 import re
 
-WORDS_FILE = "/usr/share/dict/words"
+with open("wordle.conf") as config:
+    params = json.load(config)
+
+WORDS_FILE = params["dictionaries"]["base-dict"]
 
 # Gets passed the number of letters in the answer and returns the list of valid words with the same number of letters
 def get_words(num_letters):
