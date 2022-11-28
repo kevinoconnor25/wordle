@@ -13,17 +13,36 @@ GREEN = "\033[42m"
 YELLOW = "\033[43m"
 GRAY = "\033[100m"
 
+# Get a dictionary of unique letters and their count
+def getUniqueDict(answer):
+    letters = {}
+    for letter in answer:
+        if letter not in letters.keys():
+            letters[letter] = answer.count(letter)
+    return letters
+
 # Display the guess with proper colors based on position of letters
 def display_output(answer, guess):
     answer_output = "\n"
     blocks = "\n"
+    _idx = 0
     idx = 0
+    letterCounts = getUniqueDict(answer)
+
+    # Deduct greens from count
+    for _letter in guess:
+        if _letter== answer[_idx]:
+            letterCounts[_letter] -= 1
+        _idx += 1
+
+    # Display the guess and deduct yellows from count
     for letter in guess:
         result = ""
         if letter == answer[idx]:
             result = GREEN + " %s " % letter + ENDC
             blocks += " " + GREEN + "  " + ENDC
-        elif guess[idx] in answer:
+        elif guess[idx] in answer and letterCounts[letter] > 0:
+            letterCounts[letter] -= 1
             result = YELLOW + " %s " % letter + ENDC
             blocks += " " + YELLOW + "  " + ENDC
         else:
@@ -96,7 +115,7 @@ def main():
     if correct == True:
         print("\nWordle %s/%s" % (num_guesses, max_guesses))
     else:
-        print("\nClose! Answer was %s" % answer)
+        print("\nWordle X/%s, Answer was %s" % (max_guesses, answer))
 
     print(blocks)
 
